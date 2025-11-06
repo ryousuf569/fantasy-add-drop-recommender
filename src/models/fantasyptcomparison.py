@@ -1,28 +1,27 @@
-from nba_api.stats.endpoints import leaguedashplayerstats
-import pandas as pd
+import os, sys
 
-season_stats = leaguedashplayerstats.LeagueDashPlayerStats(season='2025-26')
+# Get the absolute path of the project root (one directory above src/models)
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(project_root)
 
-season_df = season_stats.get_data_frames()[0]
+from ingest.playerinfo import *
+from fantasyalgorithms import *
 
-desired_player_name = "Tyrese Maxey"
-current_player_name = "Scottie Barnes"
+def get_fantasy_ranks(dpdf, cpdf):
 
-def get_fantasy_ranks(season_df, desired_player, current_player):
-
-    desired_player_season_totals = season_df[season_df['PLAYER_NAME'].str.lower() 
-                                         == desired_player.lower()]
-    current_player_season_totals = season_df[season_df['PLAYER_NAME'].str.lower() 
-                                         == current_player.lower()]
-
-    f1 = current_player_season_totals['NBA_FANTASY_PTS_RANK'].iloc[0]
-    f2 = desired_player_season_totals['NBA_FANTASY_PTS_RANK'].iloc[0]
+    f1 = cpdf['NBA_FANTASY_PTS_RANK'].iloc[0]
+    f2 = dpdf['NBA_FANTASY_PTS_RANK'].iloc[0]
 
     return int(f1), int(f2)
 
 def compare_fantasyranks(flist, desired_player, current_player):
     
-    if flist[0] < flist[1]:
+    if (flist[0] < flist[1]) and ((algselection(cp_infodf, cpdf)) > (algselection(dp_infodf, dpdf))):
         print(f"Wouldn't recommend dropping {current_player} for {desired_player}!")
-    else:
+    elif (flist[0] > flist[1]) and ((algselection(cp_infodf, cpdf)) < (algselection(dp_infodf, dpdf))):
         print("Switching him could be benificial.")
+    else:
+        print("Look for someone better!")
+
+
+compare_fantasyranks(get_fantasy_ranks(dpdf, cpdf), desired_player_name, current_player_name)
