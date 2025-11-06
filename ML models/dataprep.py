@@ -8,7 +8,7 @@ boxscoredf = gamelog_df[['PLAYER_NAME', 'GAME_DATE',
                   'MIN', 'PTS', 'REB',
                   'AST', 'STL', 'BLK',
                   'TOV', 'FGM', 'FG3M',
-                  'FGA', 'FTM', 'FTA', 'FG_PCT' ]].iloc[20:60]
+                  'FGA', 'FTM', 'FTA', 'FG_PCT' ]].iloc[0:50]
 
 def guardalgorithm(playerdf):
     return round((playerdf['PTS'].iloc[0] + 2.2*playerdf['AST'].iloc[0] + playerdf['REB'].iloc[0]
@@ -30,39 +30,57 @@ create_lags makes lags for our XGB model to work properly
 takes a Box Score DF, Base Stats, and window of games
 '''
 
-def create_lags(boxs_df, base_stats, window=20):
+def create_lags(boxs_df, base_stats, window=7):
+    """
+    Generate lagged features for each stat in base_stats over the last `window` games.
+    Returns a DataFrame with all lag features appended.
+    """
 
-    df = boxs_df.copy() # Copy of our OG DF so we can safely modify
-    lagged_frames = [] # Temporary list for new cols
+    df = boxs_df.copy()
+    df = df.sort_values('GAME_DATE').reset_index(drop=True)  # ensure chronological order
 
-    for stat in base_stats: # Loops through each stat in our base list
-        for lag in range(1 , window+1): # Inner loop over each lag we want to make
+    lagged_frames = []
 
-            # Creates a new column named like "PTS_lag1" or "AST_lag3".
-            # The .shift(lag) method moves data down by lag rows.
+    for stat in base_stats:
+        for lag in range(1, window + 1):
             lagged_col = df[stat].shift(lag).rename(f'{stat}_lag{lag}')
             lagged_frames.append(lagged_col)
-    
-    # combine all lag columns into one dataframe at once
+
     lagged_df = pd.concat([df] + lagged_frames, axis=1)
+
+    # Drop games without full lag history
     lagged_df = lagged_df.dropna().reset_index(drop=True)
+
+    # Safety check
+    if len(lagged_df) == 0:
+        raise ValueError(
+            f"No valid rows left after applying window={window}. "
+            f"Your data has only {len(df)} games."
+        )
 
     return lagged_df
 
+
 # Setting up data then calling the create_lags function
-base_stats = ['PTS','REB','AST','STL','BLK','TOV','FG3M','FG_PCT', 'fantasy_points']
+base_stats = ['PTS','REB','AST','STL','BLK','TOV','FG3M','FG_PCT']
 boxscoredf = boxscoredf.sort_values('GAME_DATE').reset_index(drop=True)
-lagged_df = create_lags(boxscoredf, base_stats, window=20)
+lagged_df = create_lags(boxscoredf, base_stats, window=7)
 
 # Creates a list of all columns in df that contain '_lag' in their names.
 feature_cols = [c for c in lagged_df.columns if '_lag' in c]
+target_set = lagged_df['fantasy_points']
 
 # SANITY CHECK - This checks if the 'Lag' values are shifted down one
 # cols_to_check = ['GAME_DATE','PTS','PTS_lag1','PTS_lag2','fantasy_points','fantasy_points_lag1']
 # print(lagged_df[cols_to_check].head(8))
 
-split_ratio = int(len(lagged_df)*0.8)
+split_ratio = max(1, int(len(lagged_df) * 0.8))
 X_training_set = lagged_df.loc[:split_ratio-1, feature_cols] # Base Stats
 Y_training_set = lagged_df.loc[:split_ratio-1, 'fantasy_points'] # Target 
 X_testing_set = lagged_df.loc[split_ratio:, feature_cols]
-Y_testing_test  = lagged_df.loc[split_ratio:, 'fantasy_points']
+Y_testing_set  = lagged_df.loc[split_ratio:, 'fantasy_points']
+
+X_train = X_training_set.values if hasattr(X_training_set, 'values') else X_training_set
+Y_train = Y_training_set.values if hasattr(Y_training_set, 'values') else Y_training_set
+X_test  = X_testing_set.values if hasattr(X_testing_set, 'values') else X_testing_set
+Y_test  = Y_testing_set.values if hasattr(Y_testing_set, 'values') else Y_testing_set
