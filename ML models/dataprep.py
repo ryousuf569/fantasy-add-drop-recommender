@@ -84,3 +84,5 @@ X_train = X_training_set.values if hasattr(X_training_set, 'values') else X_trai
 Y_train = Y_training_set.values if hasattr(Y_training_set, 'values') else Y_training_set
 X_test  = X_testing_set.values if hasattr(X_testing_set, 'values') else X_testing_set
 Y_test  = Y_testing_set.values if hasattr(Y_testing_set, 'values') else Y_testing_set
+
+print(lagged_df)
