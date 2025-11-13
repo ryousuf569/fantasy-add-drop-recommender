@@ -9,3 +9,5 @@ for i in all_players['id']:
     p_info = commonplayerinfo.CommonPlayerInfo(player_id=i).get_data_frames()[0]
     if p_info['POSITION'].iloc[0] == 'Guard':
         guard_ids.append(i)
+
+print(guard_ids)
