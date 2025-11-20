@@ -1,5 +1,10 @@
 from xgboost import XGBRegressor as xgb
-from dataprep import *
+import os, sys
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(project_root)
+from db.guarddataprep import load_train_test_from_mongo
+
+X_train, X_test, Y_train, Y_test = load_train_test_from_mongo()
 
 '''
 Since I'm building an XGB model for the first time
@@ -7,7 +12,7 @@ I've left a number of in-line comments for my own use
 '''
 
 model = xgb(
-    n_estimators=600,  # number of boosting rounds (trees). More trees = more learning capacity, but higher risk of overfitting.
+    n_estimators=1000,  # number of boosting rounds (trees). More trees = more learning capacity, but higher risk of overfitting.
     learning_rate=0.05,  # shrinkage factor controlling how much each tree contributes (smaller = slower, safer learning).
     max_depth=6,  # maximum depth of each tree (controls model complexity; deeper trees capture more interactions but can overfit).
     subsample=0.8, # fraction of training rows used per tree (adds randomness → prevents overfitting, like bagging).
