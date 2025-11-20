@@ -17,11 +17,12 @@ def get_fantasy_ranks(dpdf, cpdf):
 def compare_fantasyranks(flist, desired_player, current_player):
     
     if (flist[0] < flist[1]) and ((algselection(cp_infodf, cpdf)) > (algselection(dp_infodf, dpdf))):
-        print(f"Wouldn't recommend dropping {current_player} for {desired_player}!")
+        switch = False
     elif (flist[0] > flist[1]) and ((algselection(cp_infodf, cpdf)) < (algselection(dp_infodf, dpdf))):
-        print("Switching him could be benificial.")
+        switch = True
     else:
-        print("Look for someone better!")
+        switch = False
+    
+    return switch
 
-
-compare_fantasyranks(get_fantasy_ranks(dpdf, cpdf), desired_player_name, current_player_name)
+switch = compare_fantasyranks(get_fantasy_ranks(dpdf, cpdf), desired_player_name, current_player_name)

@@ -109,7 +109,7 @@ def build_train_test_split(player_ids, base_stats, window=7, split_ratio=0.8):
 
 # CALL FUNCTION WHEN YOU WANT TO BUILD DATASET
 '''X_train, X_test, Y_train, Y_test, combined_dataset = build_train_test_split(
-    guard_ids,
+    forward_ids,
     base_stats=['PTS', 'REB', 'AST', 'STL', 'BLK', 'TOV', 'FG3M', 'FG_PCT'],
     window=7
 )'''
@@ -117,7 +117,7 @@ def build_train_test_split(player_ids, base_stats, window=7, split_ratio=0.8):
 DATA_DIR = "data"
 os.makedirs(DATA_DIR, exist_ok=True)
 
-def save_train_test_to_mongo(X_train, X_test, Y_train, Y_test, name="guards"):
+def save_train_test_to_mongo(X_train, X_test, Y_train, Y_test, name="forwards_dataset"):
     # File paths
     paths = {
         "X_train": f"{DATA_DIR}/{name}_X_train.csv",
@@ -140,7 +140,7 @@ def save_train_test_to_mongo(X_train, X_test, Y_train, Y_test, name="guards"):
 
     print(f"[CSV + MongoDB] Saved dataset '{name}' successfully.")
 
-def load_train_test_from_mongo(name="guards_dataset"):
+def load_train_test_from_mongo(name="forwards_dataset"):
     doc = collection.find_one({"name": name})
     if not doc:
         raise ValueError(f"No dataset named '{name}' found in MongoDB.")

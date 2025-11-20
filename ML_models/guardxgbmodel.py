@@ -11,7 +11,7 @@ Since I'm building an XGB model for the first time
 I've left a number of in-line comments for my own use
 '''
 
-model = xgb(
+gmodel = xgb(
     n_estimators=1000,  # number of boosting rounds (trees). More trees = more learning capacity, but higher risk of overfitting.
     learning_rate=0.05,  # shrinkage factor controlling how much each tree contributes (smaller = slower, safer learning).
     max_depth=6,  # maximum depth of each tree (controls model complexity; deeper trees capture more interactions but can overfit).
@@ -23,7 +23,7 @@ model = xgb(
     early_stopping_rounds=25
 )
 
-model.fit(
+gmodel.fit(
     X_train, Y_train, # training features (X) and target values (y)
     eval_set=[(X_test, Y_test)], # validation data to monitor performance during training
     verbose=False  # suppresses per-iteration logs for cleaner output) # stops training if validation RMSE doesn't improve for 25 rounds (prevents overfitting)
