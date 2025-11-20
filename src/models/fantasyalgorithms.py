@@ -4,7 +4,7 @@ import os, sys
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(project_root)
 
-from ingest.playerinfo import *
+from ML_models.predictfuturepts import *
 
 def guardalgorithm(playerdf):
     return round(((playerdf['PTS'].iloc[0] + 2.2*playerdf['AST'].iloc[0] + playerdf['REB'].iloc[0]
