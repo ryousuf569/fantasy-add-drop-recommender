@@ -62,7 +62,10 @@ def get_position_vector(pos_id,label):
 
         player_proj, last_12_bpm_avg, player_pos = get_fantasay_pred(player_name)
         player_avg = sum(player_proj) / len(player_proj)
-        player_pos_num = posmapping.get(player_pos, -1)
+
+        pos_str = player_info['POSITION'].iloc[0] 
+        player_pos_num = posmapping.get(pos_str)
+
         vec = [player_avg, last_12_bpm_avg, player_pos_num]
         X.append(vec)
 
@@ -75,6 +78,8 @@ def get_position_vector(pos_id,label):
     print(f"Saved {label.upper()} vectors to {save_path}")
 
     return X
+
+get_position_vector(guard_ids, "guard")
 
 for label, pos_group in zip(label_map, all_pos_groups):
     X_pos = get_position_vector(pos_group, label)
