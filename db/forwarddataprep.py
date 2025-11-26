@@ -23,13 +23,13 @@ os.makedirs(DATA_DIR, exist_ok=True)
 def guardalgorithm(row):
     return round(
         row['PTS'] + 
-        2.2 * row['AST'] +
-        row['REB'] + 
+        1.5 * row['AST'] +
+        1.2 * row['REB'] + 
         4 * row['STL'] +
-        3.5 * row['BLK'] +
-        row['FG3M'] +
-        5 * row['FG_PCT'] -
-        3 * row['TOV'], 
+        4 * row['BLK'] +
+        0.5 * row['FG3M'] +
+        3 * row['FG_PCT'] -
+        2 * row['TOV'], 
         2
     )
 

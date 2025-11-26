@@ -22,13 +22,13 @@ os.makedirs(DATA_DIR, exist_ok=True)
 def guardalgorithm(row):
     return round(
         row['PTS'] + 
-        2.2 * row['AST'] +
-        row['REB'] + 
+        0.8 * row['AST'] +
+        1.5 * row['REB'] + 
         4 * row['STL'] +
-        3.5 * row['BLK'] +
-        row['FG3M'] +
-        5 * row['FG_PCT'] -
-        3 * row['TOV'], 
+        4 * row['BLK'] +
+        0 * row['FG3M'] +
+        6 * row['FG_PCT'] -
+        2 * row['TOV'], 
         2
     )
 
@@ -107,7 +107,7 @@ def build_train_test_split(player_ids, base_stats, window=7, split_ratio=0.8):
 
     return X_train, X_test, Y_train, Y_test, combined_dataset
 
-# CALL FUNCTION WHEN YOU WANT TO BUILD DATASET
+# CALL FUNCTION TO BUILD DATASET
 '''X_train, X_test, Y_train, Y_test, combined_dataset = build_train_test_split(
     center_ids,
     base_stats=['PTS', 'REB', 'AST', 'STL', 'BLK', 'TOV', 'FG3M', 'FG_PCT'],

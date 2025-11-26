@@ -57,7 +57,7 @@ def fetch_and_cache_positions():
     return guard_ids, forward_ids, center_ids
 
 def get_position_lists():
-    client = MongoClient("mongodb+srv://ryousuf569_db_user:vpVsaQYpAzdi6o6v@pos-id-data-sets.hjjcqbt.mongodb.net/?appName=POS-ID-DATA-SETS")
+    client = MongoClient(MONGO_URI)
 
     db = client["nba_database"]
     collection = db["positions_cache"]
