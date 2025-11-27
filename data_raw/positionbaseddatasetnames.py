@@ -60,7 +60,7 @@ def fetch_and_cache_names():
     return guard_names, forward_names, center_names
 
 def get_position_names():
-    conn = sqlite3.connect("position_names.db")
+    conn = sqlite3.connect("database/position_names.db")
     cursor = conn.cursor()
 
     cursor.execute("SELECT name FROM guards;")

@@ -142,7 +142,7 @@ def save_train_test_to_mongo(X_train, X_test, Y_train, Y_test, name="guards"):
 
     print(f"[CSV + MongoDB] Saved dataset '{name}' successfully.")
 
-def load_train_test_from_sqlite(db_path="fantasy_nba_test+train_data.db"):
+def load_train_test_from_sqlite(db_path="database/fantasy_nba_test+train_data.db"):
     conn = sqlite3.connect(db_path)
 
     X_train = pd.read_sql_query("SELECT * FROM guards_X_train;", conn)

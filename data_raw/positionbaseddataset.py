@@ -58,7 +58,7 @@ def fetch_and_cache_positions():
     return guard_ids, forward_ids, center_ids
 
 def get_position_lists():
-    conn = sqlite3.connect("position_ids.db")
+    conn = sqlite3.connect("database/position_ids.db")
     cursor = conn.cursor()
 
     cursor.execute("SELECT name FROM guards;")
