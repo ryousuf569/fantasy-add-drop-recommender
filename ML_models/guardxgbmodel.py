@@ -2,9 +2,9 @@ from xgboost import XGBRegressor as xgb
 import os, sys
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(project_root)
-from db.guarddataprep import load_train_test_from_mongo
+from db.guarddataprep import load_train_test_from_sqlite
 
-X_train, X_test, Y_train, Y_test = load_train_test_from_mongo()
+X_train, X_test, Y_train, Y_test = load_train_test_from_sqlite()
 
 '''
 Since I'm building an XGB model for the first time

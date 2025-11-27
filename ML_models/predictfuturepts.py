@@ -5,22 +5,62 @@ from guardxgbmodel import *
 from forwardsxgbmodel import *
 from centerxgbmodels import *
 
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, project_root)
+
+from data_raw.positionbaseddatasetnames import get_position_names
+guard_names, forward_names, center_names = get_position_names()
+
 def get_player_name_id_pos(player_name):
     from nba_api.stats.endpoints import leaguedashplayerstats
     from nba_api.stats.endpoints import commonplayerinfo
+    from difflib import get_close_matches
     season_stats = leaguedashplayerstats.LeagueDashPlayerStats(season='2025-26')
     season_df = season_stats.get_data_frames()[0]
 
-    time.sleep(0.200)
+    all_names = [name.lower() for name in (guard_names + forward_names + center_names)]
 
-    pdf = season_df[season_df['PLAYER_NAME'].str.lower() 
-                                         == player_name.lower()]
+    time.sleep(0.300)
+
+    def player_id_pos(season_df, name):
+        pdf = season_df[season_df['PLAYER_NAME'].str.lower() == name.lower()]
+
+        if pdf.empty:
+            return None, None 
+
+        player_id = pdf['PLAYER_ID'].iloc[0]
+
+        player_info = commonplayerinfo.CommonPlayerInfo(
+            player_id=player_id
+        ).get_data_frames()[0]
+
+        player_pos = player_info['POSITION'].iloc[0]
+
+        return player_id, player_pos
     
-    player_id = pdf['PLAYER_ID'].iloc[0]
-    player_info = commonplayerinfo.CommonPlayerInfo(player_id=player_id).get_data_frames()[0]
-    player_pos = player_info['POSITION'].iloc[0]
+    def find_similar_name(name, allnames_list, cutoff=0.6):
+        matches = get_close_matches(name.lower(), allnames_list, n=1, cutoff=cutoff)
+        if matches:
+            return matches[0]
+        return None
+    
+    name_lower = player_name.lower()
 
-    return player_id, player_pos
+    if name_lower in all_names:
+        return player_id_pos(season_df, player_name)
+
+    # Fuzzy match
+    new_name = find_similar_name(player_name, all_names)
+
+    if new_name is not None:
+        # new_name is lowercase version -> find real-cased version in all list
+        for name in guard_names + forward_names + center_names:
+            if name.lower() == new_name:
+                corrected = name
+                break
+        return player_id_pos(season_df, corrected)
+
+    raise ValueError(f"No close match found for player name: {player_name}")
 
 def get_recent_games(player_id, season="2025-26", n=12):
 

@@ -3,6 +3,7 @@ import pandas as pd
 import os, sys
 import time
 from pymongo import MongoClient
+import sqlite3
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(project_root)
@@ -141,17 +142,23 @@ def save_train_test_to_mongo(X_train, X_test, Y_train, Y_test, name="guards"):
 
     print(f"[CSV + MongoDB] Saved dataset '{name}' successfully.")
 
-def load_train_test_from_mongo(name="guards_dataset"):
-    doc = collection.find_one({"name": name})
-    if not doc:
-        raise ValueError(f"No dataset named '{name}' found in MongoDB.")
-    paths = doc["paths"]
+def load_train_test_from_sqlite(db_path="fantasy_nba_test+train_data.db"):
+    conn = sqlite3.connect(db_path)
 
-    # Load CSV files
-    X_train = pd.read_csv(paths["X_train"])
-    X_test  = pd.read_csv(paths["X_test"])
-    Y_train = pd.read_csv(paths["Y_train"], header=None).iloc[:,0]
-    Y_test  = pd.read_csv(paths["Y_test"], header=None).iloc[:,0]
+    X_train = pd.read_sql_query("SELECT * FROM guards_X_train;", conn)
+    X_test  = pd.read_sql_query("SELECT * FROM guards_X_test;", conn)
+    Y_train = pd.read_sql_query("SELECT * FROM guards_Y_train;", conn).iloc[:,0]
+    Y_test  = pd.read_sql_query("SELECT * FROM guards_Y_test;", conn).iloc[:,0]
 
-    print(f"[CSV + MongoDB] Loaded dataset '{name}' successfully.")
+    # fixing model shape
+    if len(X_train) == len(Y_train) + 1:
+        X_train = X_train.iloc[1:].reset_index(drop=True)
+    if len(X_test) == len(Y_test) + 1:
+        X_test = X_test.iloc[1:].reset_index(drop=True)
+
+    # reset Y indices (sanity check 😰😰😰)
+    Y_train = Y_train.reset_index(drop=True)
+    Y_test  = Y_test.reset_index(drop=True)
+
+    print("[SQLite] Clean load successful")
     return X_train, X_test, Y_train, Y_test

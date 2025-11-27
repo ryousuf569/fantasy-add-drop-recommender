@@ -32,10 +32,23 @@ def build_vector_from_name(player_name):
     return np.array([player_avg, last_12_bpm_avg, player_pos_num])
 
 def get_player_id_from_name(player_name):
+    from difflib import get_close_matches
     players = get_players()
+    all_player_names = [p["full_name"].lower() for p in players]
+    name_lower = player_name.lower()
+
     for p in players:
         if p["full_name"].lower() == player_name.lower():
             return p["id"]
+        
+    # same search check as predictfuturepts    
+    matches = get_close_matches(name_lower, all_player_names, n=1, cutoff=0.6)
+    if matches:
+        best_match = matches[0] 
+        for p in players:
+            if p["full_name"].lower() == best_match:
+                return p["id"]
+            
     raise ValueError(f"Player '{player_name}' not found")
 
 def suggest_similar_players(player_name, top_n=5):
@@ -69,19 +82,42 @@ def player_id_to_name(pid):
     info = commonplayerinfo.CommonPlayerInfo(player_id=pid).get_data_frames()[0]
     return info['FIRST_NAME'].iloc[0] + " " + info['LAST_NAME'].iloc[0]
 
+def calculate_risk_factor(fproj):
+    avg = np.mean(fproj)
+    std = np.std(fproj)
+    cv = std / avg
+    score = (100 - min(100, cv * 100))
+    return round(score)
+
+def compute_trend_meter(avg5, avg12, playername):
+    trend_raw = (avg5 - avg12) / avg12
+
+    if trend_raw > 0.20: return f"{playername} is going crazy lately."
+    elif trend_raw > 0.10: return f"{playername} is turning up."
+    elif trend_raw > 0.03: return f"{playername} is playing better recently."
+    elif trend_raw > -0.03: return f"{playername} is performing consistent"
+    elif trend_raw > -0.10: return f"{playername} been slowing down."
+    elif trend_raw > -0.20: return f"{playername} is getting worse and worse"
+    else: return f"{playername} is POOO right now"
+
 currentplayer_name = input("Enter current player: ")
 desiredplayer_name = input("Enter desired player: ")
+desiredplayer_name = player_id_to_name(get_player_id_from_name(desiredplayer_name))
 
 current_proj, current_last_12_bpm_avg, cplayer_pos = get_fantasay_pred(currentplayer_name)
 desired_proj, desired_last_12_bpm_avg, dplayer_pos = get_fantasay_pred(desiredplayer_name)
+time.sleep(0.300)
+desiredplayer_id = get_player_id_from_name(desiredplayer_name)
+
+desired_last_5 = get_recent_games(desiredplayer_id, season="2025-26", n=5)
+desired_last_5_avg = round(desired_last_5['PLUS_MINUS'].mean())
 
 current_avg = round(sum(current_proj) / len(current_proj)) 
 desired_avg = round(sum(desired_proj)/ len(desired_proj))
 
-print(f"\n{currentplayer_name} is projected to average ~{current_avg} pts next 5 games.")
-print(f"{desiredplayer_name} is projected to average ~{desired_avg} pts next 5 games.\n")
-
+print(compute_trend_meter(desired_last_5_avg, desired_last_12_bpm_avg, desiredplayer_name))
+print(f"{desiredplayer_name} is projected to average ~{desired_avg} pts next 5 games.")
+print(f"He has a risk factor of {calculate_risk_factor(desired_proj)}. (100 being the safest)")
 print("\nPlayers similar to", desiredplayer_name)
 for p in suggest_similar_players(desiredplayer_name, top_n=5):
     print(" •", p)
-

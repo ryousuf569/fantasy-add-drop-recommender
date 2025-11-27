@@ -2,9 +2,9 @@ from xgboost import XGBRegressor as xgb
 import os, sys
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(project_root)
-from db.forwarddataprep import load_train_test_from_mongo
+from db.forwarddataprep import load_train_test_from_sqlite
 
-X_train, X_test, Y_train, Y_test = load_train_test_from_mongo()
+X_train, X_test, Y_train, Y_test = load_train_test_from_sqlite()
 
 fmodel = xgb(
     n_estimators=1000,  # number of boosting rounds (trees). More trees = more learning capacity, but higher risk of overfitting.

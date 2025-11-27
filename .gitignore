@@ -1,1 +1,4 @@
-.env
+.env 
+mongotosql.py
+showdb.py
+csvtodb.py
