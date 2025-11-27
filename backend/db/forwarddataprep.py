@@ -24,13 +24,13 @@ os.makedirs(DATA_DIR, exist_ok=True)
 def guardalgorithm(row):
     return round(
         row['PTS'] + 
-        2.2 * row['AST'] +
-        row['REB'] + 
+        1.5 * row['AST'] +
+        1.2 * row['REB'] + 
         4 * row['STL'] +
-        3.5 * row['BLK'] +
-        row['FG3M'] +
-        5 * row['FG_PCT'] -
-        3 * row['TOV'], 
+        4 * row['BLK'] +
+        0.5 * row['FG3M'] +
+        3 * row['FG_PCT'] -
+        2 * row['TOV'], 
         2
     )
 
@@ -111,7 +111,7 @@ def build_train_test_split(player_ids, base_stats, window=7, split_ratio=0.8):
 
 # CALL FUNCTION WHEN YOU WANT TO BUILD DATASET
 '''X_train, X_test, Y_train, Y_test, combined_dataset = build_train_test_split(
-    guard_ids,
+    forward_ids,
     base_stats=['PTS', 'REB', 'AST', 'STL', 'BLK', 'TOV', 'FG3M', 'FG_PCT'],
     window=7
 )'''
@@ -119,7 +119,7 @@ def build_train_test_split(player_ids, base_stats, window=7, split_ratio=0.8):
 DATA_DIR = "data"
 os.makedirs(DATA_DIR, exist_ok=True)
 
-def save_train_test_to_mongo(X_train, X_test, Y_train, Y_test, name="guards"):
+def save_train_test_to_mongo(X_train, X_test, Y_train, Y_test, name="forwards_dataset"):
     # File paths
     paths = {
         "X_train": f"{DATA_DIR}/{name}_X_train.csv",
@@ -142,13 +142,13 @@ def save_train_test_to_mongo(X_train, X_test, Y_train, Y_test, name="guards"):
 
     print(f"[CSV + MongoDB] Saved dataset '{name}' successfully.")
 
-def load_train_test_from_sqlite(db_path="database/fantasy_nba_test+train_data.db"):
+def load_train_test_from_sqlite(db_path="backend/database/fantasy_nba_test+train_data.db"):
     conn = sqlite3.connect(db_path)
 
-    X_train = pd.read_sql_query("SELECT * FROM guards_X_train;", conn)
-    X_test  = pd.read_sql_query("SELECT * FROM guards_X_test;", conn)
-    Y_train = pd.read_sql_query("SELECT * FROM guards_Y_train;", conn).iloc[:,0]
-    Y_test  = pd.read_sql_query("SELECT * FROM guards_Y_test;", conn).iloc[:,0]
+    X_train = pd.read_sql_query("SELECT * FROM forwards_X_train;", conn)
+    X_test  = pd.read_sql_query("SELECT * FROM forwards_X_test;", conn)
+    Y_train = pd.read_sql_query("SELECT * FROM forwards_Y_train;", conn).iloc[:,0]
+    Y_test  = pd.read_sql_query("SELECT * FROM forwards_Y_test;", conn).iloc[:,0]
 
     # fixing model shape
     if len(X_train) == len(Y_train) + 1:
@@ -162,3 +162,4 @@ def load_train_test_from_sqlite(db_path="database/fantasy_nba_test+train_data.db
 
     print("[SQLite] Clean load successful")
     return X_train, X_test, Y_train, Y_test
+

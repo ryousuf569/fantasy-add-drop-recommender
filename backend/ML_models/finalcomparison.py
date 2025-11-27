@@ -7,7 +7,7 @@ from nba_api.stats.static.players import get_players
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, project_root)
-DATA_DIR = "data/joblib"
+DATA_DIR = "backend/data/joblib"
 
 nn = joblib.load(os.path.join(DATA_DIR, "knn_players.joblib"))
 scaler = joblib.load(os.path.join(DATA_DIR, "scaler_players.joblib"))
@@ -100,24 +100,18 @@ def compute_trend_meter(avg5, avg12, playername):
     elif trend_raw > -0.20: return f"{playername} is getting worse and worse"
     else: return f"{playername} is POOO right now"
 
-currentplayer_name = input("Enter current player: ")
 desiredplayer_name = input("Enter desired player: ")
 desiredplayer_name = player_id_to_name(get_player_id_from_name(desiredplayer_name))
 
-current_proj, current_last_12_bpm_avg, cplayer_pos = get_fantasay_pred(currentplayer_name)
 desired_proj, desired_last_12_bpm_avg, dplayer_pos = get_fantasay_pred(desiredplayer_name)
 time.sleep(0.300)
 desiredplayer_id = get_player_id_from_name(desiredplayer_name)
 
 desired_last_5 = get_recent_games(desiredplayer_id, season="2025-26", n=5)
 desired_last_5_avg = round(desired_last_5['PLUS_MINUS'].mean())
+ 
+desired_projection_avg = round(sum(desired_proj)/ len(desired_proj))
+trend = compute_trend_meter(desired_last_5_avg, desired_last_12_bpm_avg, desiredplayer_name)
+risk_factor = calculate_risk_factor(desired_proj)
+similar_players = suggest_similar_players(desiredplayer_name, top_n=5)
 
-current_avg = round(sum(current_proj) / len(current_proj)) 
-desired_avg = round(sum(desired_proj)/ len(desired_proj))
-
-print(compute_trend_meter(desired_last_5_avg, desired_last_12_bpm_avg, desiredplayer_name))
-print(f"{desiredplayer_name} is projected to average ~{desired_avg} pts next 5 games.")
-print(f"He has a risk factor of {calculate_risk_factor(desired_proj)}. (100 being the safest)")
-print("\nPlayers similar to", desiredplayer_name)
-for p in suggest_similar_players(desiredplayer_name, top_n=5):
-    print(" •", p)

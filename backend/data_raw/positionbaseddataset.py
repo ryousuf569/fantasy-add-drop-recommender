@@ -1,7 +1,7 @@
 from nba_api.stats.endpoints import leaguedashplayerstats, commonplayerinfo
 from pymongo import MongoClient
-import sqlite3
 import pandas as pd
+import sqlite3
 import time
 import os, sys
 
@@ -11,35 +11,33 @@ sys.path.append(project_root)
 from mongokey import MONGO_URI
 client = MongoClient(MONGO_URI)
 db = client["nba_database"]
-collection = db["names_cache"]
+collection = db["positions_cache"]
 
-def fetch_and_cache_names():
+def fetch_and_cache_positions():
     season_stats = leaguedashplayerstats.LeagueDashPlayerStats(season='2025-26').get_data_frames()[0]
     top100_df = season_stats[season_stats["NBA_FANTASY_PTS_RANK"] < 201]
     top_100_players = top100_df["PLAYER_ID"].tolist()
-    top_100_players_names = top100_df["PLAYER_NAME"].tolist()
 
-    guard_names, forward_names, center_names = [], [], []
+    guard_ids, forward_ids, center_ids = [], [], []
 
     print("Fetching player data...")
 
     for i in top_100_players:
-        index = top_100_players.index(i)
         player_info = commonplayerinfo.CommonPlayerInfo(player_id=i).get_data_frames()[0]
         pos = player_info['POSITION'].iloc[0]
 
         if pos in ["Guard"]:
-            guard_names.append(top_100_players_names[index])
+            guard_ids.append(i)
         elif pos in ["Forward"]:
-            forward_names.append(top_100_players_names[index])
+            forward_ids.append(i)
         elif pos in ["Center"]:
-            center_names.append(top_100_players_names[index])
+            center_ids.append(i)
         elif pos in ["Guard-Forward"]:
-            guard_names.append(top_100_players_names[index])
+            guard_ids.append(i)
         elif pos in ["Forward-Guard", "Forward-Center"]:
-            forward_names.append(top_100_players_names[index])
+            forward_ids.append(i)
         elif pos in ["Center-Forward"]:
-            center_names.append(top_100_players_names[index])
+            center_ids.append(i)
 
         time.sleep(0.5)
 
@@ -49,28 +47,30 @@ def fetch_and_cache_names():
 
     collection.insert_one({
         "season": "2025-26",
-        "guards": guard_names,
-        "forwards": forward_names,
-        "centers": center_names,
+        "guards": guard_ids,
+        "forwards": forward_ids,
+        "centers": center_ids,
         "timestamp": time.time()
     })
 
     print("Saved to MongoDB!")
 
-    return guard_names, forward_names, center_names
+    return guard_ids, forward_ids, center_ids
 
-def get_position_names():
-    conn = sqlite3.connect("database/position_names.db")
+def get_position_lists():
+    conn = sqlite3.connect("backend/database/position_ids.db")
     cursor = conn.cursor()
 
     cursor.execute("SELECT name FROM guards;")
-    guard_names = [row[0] for row in cursor.fetchall()]
+    guard_ids = [int(row[0]) for row in cursor.fetchall()]
 
     cursor.execute("SELECT name FROM forwards;")
-    forward_names = [row[0] for row in cursor.fetchall()]
+    forward_ids = [int(row[0]) for row in cursor.fetchall()]
 
     cursor.execute("SELECT name FROM centers;")
-    center_names = [row[0] for row in cursor.fetchall()]
+    center_ids = [int(row[0]) for row in cursor.fetchall()]
 
     conn.close()
-    return guard_names, forward_names, center_names
+    return guard_ids, forward_ids, center_ids
+
+
