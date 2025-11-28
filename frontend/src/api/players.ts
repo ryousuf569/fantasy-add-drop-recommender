@@ -5,6 +5,15 @@ export const fetchAllPlayers = async (): Promise<string[]> => {
   return res.data.players;
 };
 
+export type Last5Game = {
+  GAME_DATE: string;
+  PLUS_MINUS: number;
+  PTS: number;
+  REB: number;
+  AST: number;
+  MIN: number;
+};
+
 export interface PlayerReport {
   player_name: string;
   projection_list: number[];
@@ -12,6 +21,7 @@ export interface PlayerReport {
   trend: string;
   risk_factor: number;
   similar_players: string[];
+  last_5_games: Last5Game;
   last5_plus_minus: number;
   position: string;
 }

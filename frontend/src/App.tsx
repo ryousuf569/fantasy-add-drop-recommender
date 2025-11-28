@@ -2,81 +2,83 @@ import { useState } from "react";
 
 import AppLayout from "./components/layout/AppLayout";
 
-import HomePage from "./pages/HomePage";
+import HomePage from "./pages/PlayerPage";
 import PlayerDashboard from "./pages/PlayerDashboard";
 import ErrorState from "./pages/ErrorState";
 import DesignSystem from "./pages/DesignSystem";
 
-export type View =
-  | "home"
-  | "player"
-  | "error"
-  | "designSystem"
-  | "settings";
+export type View = "home" | "player" | "error" | "designSystem" | "settings";
 
 export default function App() {
   const [currentView, setCurrentView] = useState<View>("home");
   const [selectedPlayer, setSelectedPlayer] = useState<string>("");
 
-  // Handle navigation coming from the sidebar
-  const handleNavigate = (view: View) => {
-    // Prevent crashing if navigating to player without a player set
-    if (view === "player" && !selectedPlayer) {
-      setCurrentView("error");
-      return;
-    }
+  // -----------------------------------------------
+  // NAVIGATION HANDLERS
+  // -----------------------------------------------
 
+  const navigate = (view: View) => {
+    if (view === "player" && !selectedPlayer) {
+      return setCurrentView("error");
+    }
     setCurrentView(view);
   };
 
-  // Handle player search
-  const handlePlayerSelect = (playerName: string) => {
+  const selectPlayer = (playerName: string) => {
     setSelectedPlayer(playerName);
 
-    if (playerName.trim().length > 0) {
-      setCurrentView("player");
-    } else {
-      setCurrentView("error");
+    if (playerName.trim().length === 0) {
+      return setCurrentView("error");
     }
+
+    setCurrentView("player");
   };
 
-  const handleBackToHome = () => {
+  const backToHome = () => {
     setSelectedPlayer("");
     setCurrentView("home");
   };
 
-  const handleRetry = () => {
+  const retryError = () => {
     setSelectedPlayer("");
     setCurrentView("home");
   };
 
-  // Standalone Error Page
+  // -----------------------------------------------
+  // STANDALONE PAGES
+  // -----------------------------------------------
+
   if (currentView === "error") {
-    return <ErrorState onRetry={handleRetry} />;
+    return <ErrorState onRetry={retryError} />;
   }
 
-  // Standalone Design System page
   if (currentView === "designSystem") {
     return <DesignSystem />;
   }
 
+  // -----------------------------------------------
+  // MAIN APP LAYOUT
+  // -----------------------------------------------
+
   return (
-    <AppLayout onNavigate={handleNavigate} currentView={currentView}>
+    <AppLayout currentView={currentView} onNavigate={navigate}>
       {currentView === "home" && (
-        <HomePage onPlayerSelect={handlePlayerSelect} />
+        <HomePage onPlayerSelect={selectPlayer} />
       )}
 
       {currentView === "player" && (
         <PlayerDashboard
           playerName={selectedPlayer}
-          onBack={handleBackToHome}
+          onBack={backToHome}
         />
       )}
 
       {currentView === "settings" && (
-        <div className="text-foreground">
+        <div className="text-foreground space-y-2">
           <h1 className="text-2xl font-bold">Settings</h1>
-          <p className="text-muted-foreground mt-2">Settings page goes here.</p>
+          <p className="text-muted-foreground">
+            Settings page goes here.
+          </p>
         </div>
       )}
     </AppLayout>

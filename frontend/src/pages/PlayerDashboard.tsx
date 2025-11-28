@@ -1,4 +1,3 @@
-console.log("VITE_API_URL =", import.meta.env.VITE_API_URL);
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -15,23 +14,33 @@ export default function PlayerDashboard({ playerName, onBack }: PlayerDashboardP
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // load report on mount
   useEffect(() => {
     setLoading(true);
+    setError(null);
+
     fetchPlayerReport(playerName)
       .then((res) => {
         setData(res);
         setLoading(false);
       })
       .catch((err) => {
+        console.error("[PlayerDashboard ERROR]", err);
         setError("Failed to load player data.");
-        console.error(err);
         setLoading(false);
       });
   }, [playerName]);
 
+  // ------------------------------------------------------------
+  // UI States
+  // ------------------------------------------------------------
+
   if (loading) {
-    return <p className="text-muted-foreground">Loading player stats...</p>;
+    return (
+      <div className="space-y-4">
+        <p className="text-muted-foreground animate-pulse">Loading player stats...</p>
+        <Button variant="outline" onClick={onBack}>Back</Button>
+      </div>
+    );
   }
 
   if (error || !data) {
@@ -43,37 +52,51 @@ export default function PlayerDashboard({ playerName, onBack }: PlayerDashboardP
     );
   }
 
+  // ------------------------------------------------------------
+  // FINAL RENDER
+  // ------------------------------------------------------------
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
 
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">{data.player_name}</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{data.player_name}</h1>
         <Button variant="outline" onClick={onBack}>Back</Button>
       </div>
 
-      {/* Summary Badges */}
-      <div className="flex gap-3 flex-wrap">
-        <Badge variant="secondary">Position: {data.position}</Badge>
-        <Badge variant="secondary">Projection Avg: {data.projection_avg}</Badge>
-        <Badge variant="secondary">Last 5 +/-: {data.last5_plus_minus}</Badge>
-        <Badge variant="secondary">Risk Score: {data.risk_factor}</Badge>
+      {/* Key Metrics */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <Badge className="py-2 px-3 text-sm" variant="secondary">
+          Position: {data.position}
+        </Badge>
+        <Badge className="py-2 px-3 text-sm" variant="secondary">
+          Avg Projection: {data.projection_avg}
+        </Badge>
+        <Badge className="py-2 px-3 text-sm" variant="secondary">
+          Last 5 +/-: {data.last5_plus_minus}
+        </Badge>
+        <Badge className="py-2 px-3 text-sm" variant="secondary">
+          Risk Score: {data.risk_factor}
+        </Badge>
       </div>
 
-      {/* Projection Card */}
+      {/* Projection Points */}
       <Card>
         <CardHeader>
           <CardTitle>Projected Fantasy Points (Next Games)</CardTitle>
         </CardHeader>
-        <CardContent className="text-muted-foreground">
-          {data.projection_list.length > 0 ? (
-            <ul className="space-y-1 ml-4">
+        <CardContent>
+          {data.projection_list?.length ? (
+            <ul className="space-y-1 ml-4 text-muted-foreground">
               {data.projection_list.map((p, i) => (
-                <li key={i}>Game {i + 1}: <span className="font-medium">{p}</span> pts</li>
+                <li key={i}>
+                  Game {i + 1}: <span className="font-semibold text-foreground">{p}</span> pts
+                </li>
               ))}
             </ul>
           ) : (
-            <p>No projection data available.</p>
+            <p className="text-muted-foreground">No projection data available.</p>
           )}
         </CardContent>
       </Card>
@@ -84,23 +107,23 @@ export default function PlayerDashboard({ playerName, onBack }: PlayerDashboardP
           <CardTitle>Trend Meter</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-lg font-medium">{data.trend}</p>
+          <p className="text-lg font-medium text-foreground">{data.trend}</p>
         </CardContent>
       </Card>
 
-      {/* Risk Factor */}
+      {/* Risk Factor Bar */}
       <Card>
         <CardHeader>
           <CardTitle>Risk Factor</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="relative w-full bg-muted h-6 rounded-md overflow-hidden">
+        <CardContent className="space-y-2">
+          <div className="relative w-full h-6 rounded-md overflow-hidden bg-muted">
             <div
-              className="absolute top-0 left-0 h-full bg-red-500 transition-all"
+              className="absolute top-0 left-0 h-full transition-all bg-gradient-to-r from-red-600 to-yellow-500"
               style={{ width: `${data.risk_factor}%` }}
             />
           </div>
-          <p className="text-sm mt-2 text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Lower score = more volatile / high-risk player.
           </p>
         </CardContent>
@@ -111,11 +134,17 @@ export default function PlayerDashboard({ playerName, onBack }: PlayerDashboardP
         <CardHeader>
           <CardTitle>Similar Players</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2">
-          {data.similar_players.length > 0 ? (
+        <CardContent>
+          {data.similar_players?.length ? (
             <div className="flex flex-wrap gap-2">
               {data.similar_players.map((p) => (
-                <Badge key={p} variant="outline">{p}</Badge>
+                <Badge
+                  key={p}
+                  className="px-3 py-1 text-sm"
+                  variant="outline"
+                >
+                  {p}
+                </Badge>
               ))}
             </div>
           ) : (
