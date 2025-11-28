@@ -16,13 +16,17 @@ export type Last5Game = {
 
 export interface PlayerReport {
   player_name: string;
+  status: string;
   projection_list: number[];
   projection_avg: number;
   trend: string;
   risk_factor: number;
-  similar_players: string[];
-  last_5_games: Last5Game[];
-  last5_plus_minus: number;
+  similar_players: {
+  name: string;
+  player_id: number;
+  }[];
+  last5_games: Last5Game[];
+  last5_plus_minus_avg: number;
   position: string;
   player_id: number;
 }

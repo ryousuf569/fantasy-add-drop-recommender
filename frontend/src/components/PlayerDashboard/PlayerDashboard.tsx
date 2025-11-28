@@ -6,13 +6,17 @@ import { fetchPlayerReport, PlayerReport } from "@/api/players";
 
 import PlayerHeadshot from "./PlayerHeadshot";
 import RecentGames from "./RecentGames";
+import ProjectionChart from "./ProjectionChart";
+import TrendChart from "./TrendChart";
+import MiniHeadshot from "./MiniHeadshot";
 
 interface PlayerDashboardProps {
   playerName: string;
   onBack: () => void;
+  onPlayerSelect: (name: string) => void; 
 }
 
-export default function PlayerDashboard({ playerName, onBack }: PlayerDashboardProps) {
+export default function PlayerDashboard({ playerName, onBack, onPlayerSelect }: PlayerDashboardProps) {
   const [data, setData] = useState<PlayerReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -68,10 +72,11 @@ export default function PlayerDashboard({ playerName, onBack }: PlayerDashboardP
       <div className="flex gap-6 items-center">
         <PlayerHeadshot playerId={data.player_id} name={data.player_name} />
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           <Badge variant="secondary">Position: {data.position}</Badge>
+          <Badge variant="secondary">Status: {data.status}</Badge>
           <Badge variant="secondary">Avg Projection: {data.projection_avg}</Badge>
-          <Badge variant="secondary">Last 5 +/-: {data.last5_plus_minus}</Badge>
+          <Badge variant="secondary">Last 5 +/-: {data.last5_plus_minus_avg}</Badge>
           <Badge variant="secondary">Risk Score: {data.risk_factor}</Badge>
         </div>
       </div>
@@ -81,28 +86,28 @@ export default function PlayerDashboard({ playerName, onBack }: PlayerDashboardP
         <CardHeader>
           <CardTitle>Projected Fantasy Points</CardTitle>
         </CardHeader>
+
         <CardContent>
           {data.projection_list.length > 0 ? (
-            <ul className="space-y-1 ml-4 text-muted-foreground">
-              {data.projection_list.map((pts, i) => (
-                <li key={i}>
-                  Game {i + 1}: <span className="font-semibold text-white">{pts}</span> pts
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-muted-foreground">No projection data.</p>
-          )}
+          <ProjectionChart data={data.projection_list} />
+        ) : (
+          <p className="text-muted-foreground">No projection data.</p>
+        )}
         </CardContent>
       </Card>
 
       {/* Trend Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Trend Meter</CardTitle>
+          <CardTitle>Trend Meter (Last 5 Games +/-)</CardTitle>
         </CardHeader>
+
         <CardContent>
-          <p className="text-lg font-medium text-white">{data.trend}</p>
+          {data.last5_games.length > 0 ? (
+          <TrendChart games={data.last5_games} />
+        ) : (
+          <p className="text-muted-foreground">No recent trend data.</p>
+        )}
         </CardContent>
       </Card>
 
@@ -111,12 +116,18 @@ export default function PlayerDashboard({ playerName, onBack }: PlayerDashboardP
         <CardHeader>
           <CardTitle>Similar Players</CardTitle>
         </CardHeader>
+
         <CardContent>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3">
             {data.similar_players.map((p) => (
-              <Badge key={p} variant="outline" className="px-3 py-1">{p}</Badge>
+              <MiniHeadshot
+                key={p.name}
+                name={p.name}
+                playerId={p.player_id}
+                onSelect={() => onPlayerSelect(p.name)}
+              />
             ))}
-          </div>
+        </div>
         </CardContent>
       </Card>
 
@@ -126,7 +137,7 @@ export default function PlayerDashboard({ playerName, onBack }: PlayerDashboardP
           <CardTitle>Recent Games</CardTitle>
         </CardHeader>
         <CardContent>
-          <RecentGames games={data.last_5_games} />
+          <RecentGames games={data.last5_games} />
         </CardContent>
       </Card>
 

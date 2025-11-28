@@ -53,13 +53,17 @@ export default function App() {
   return (
     <AppLayout currentView={currentView} onNavigate={navigate}>
       {currentView === "home" && (
-        <HomePage onPlayerSelect={selectPlayer} />
+        <HomePage 
+          key={currentView}  
+          onPlayerSelect={selectPlayer} 
+        />
       )}
 
       {currentView === "player" && (
         <PlayerDashboard
           playerName={selectedPlayer}
           onBack={backToHome}
+          onPlayerSelect={selectPlayer}
         />
       )}
 

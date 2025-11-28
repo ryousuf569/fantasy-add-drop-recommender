@@ -1,4 +1,5 @@
 from nba_api.stats.endpoints import leaguedashplayerstats
+from nba_api.stats.static.players import get_players
 
 _cached_players = None
 
