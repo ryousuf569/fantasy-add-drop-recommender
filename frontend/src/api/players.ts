@@ -21,9 +21,10 @@ export interface PlayerReport {
   trend: string;
   risk_factor: number;
   similar_players: string[];
-  last_5_games: Last5Game;
+  last_5_games: Last5Game[];
   last5_plus_minus: number;
   position: string;
+  player_id: number;
 }
 
 export const fetchPlayerReport = async (player: string): Promise<PlayerReport> => {

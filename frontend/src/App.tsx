@@ -3,7 +3,7 @@ import { useState } from "react";
 import AppLayout from "./components/layout/AppLayout";
 
 import HomePage from "./pages/PlayerPage";
-import PlayerDashboard from "./pages/PlayerDashboard";
+import PlayerDashboard from "./components/PlayerDashboard/PlayerDashboard";
 import ErrorState from "./pages/ErrorState";
 import DesignSystem from "./pages/DesignSystem";
 
@@ -12,10 +12,6 @@ export type View = "home" | "player" | "error" | "designSystem" | "settings";
 export default function App() {
   const [currentView, setCurrentView] = useState<View>("home");
   const [selectedPlayer, setSelectedPlayer] = useState<string>("");
-
-  // -----------------------------------------------
-  // NAVIGATION HANDLERS
-  // -----------------------------------------------
 
   const navigate = (view: View) => {
     if (view === "player" && !selectedPlayer) {
@@ -44,9 +40,6 @@ export default function App() {
     setCurrentView("home");
   };
 
-  // -----------------------------------------------
-  // STANDALONE PAGES
-  // -----------------------------------------------
 
   if (currentView === "error") {
     return <ErrorState onRetry={retryError} />;
@@ -56,9 +49,6 @@ export default function App() {
     return <DesignSystem />;
   }
 
-  // -----------------------------------------------
-  // MAIN APP LAYOUT
-  // -----------------------------------------------
 
   return (
     <AppLayout currentView={currentView} onNavigate={navigate}>

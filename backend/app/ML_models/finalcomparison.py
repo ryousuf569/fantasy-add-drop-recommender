@@ -128,4 +128,5 @@ def get_full_player_report(player_name):
         "last5_games": desired_last_5.to_dict(orient="records"),
         "last5_plus_minus_avg": int(desired_last_5_avg),
         "position": str(dplayer_pos),
+        "player_id": int(desiredplayer_id),
     } 

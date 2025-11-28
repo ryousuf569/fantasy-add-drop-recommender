@@ -1,21 +1,15 @@
-import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
-type SimilarPlayersListProps = {
+type Props = {
   players: string[];
+  onSelect: (name: string) => void;
 };
 
-export const SimilarPlayersList = ({ players }: SimilarPlayersListProps) => {
-  return (
-    <Card>
-      <h3 className="text-lg font-semibold mb-2">Similar Players</h3>
-
-      <ul className="space-y-1">
-        {players.map((p) => (
-          <li key={p} className="text-zinc-300">
-            • {p}
-          </li>
-        ))}
-      </ul>
-    </Card>
-  );
+export const SimilarPlayersList = ({ players, onSelect }: Props) => {
+  return players.map((p) => (
+    <Badge onClick={() => onSelect(p)}>
+      {p}
+    </Badge>
+  ));
 };
+
