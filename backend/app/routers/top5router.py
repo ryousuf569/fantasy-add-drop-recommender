@@ -8,7 +8,7 @@ router = APIRouter(
     tags=["Top 5 Players"]
 )
 
-@router.get("/", response_model=List[Any])
+@router.get("", response_model=List[Any])
 def get_top_five_players():
     return load_or_refresh_top5()
 
