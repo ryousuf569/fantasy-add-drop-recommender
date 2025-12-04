@@ -1,7 +1,7 @@
 import { api } from "./client";
 
 export const fetchAllPlayers = async (): Promise<string[]> => {
-  const res = await api.get("/players/all");
+  const res = await api.get<{ players: string[] }>("/players/all");
   return res.data.players;
 };
 
@@ -22,8 +22,8 @@ export interface PlayerReport {
   trend: string;
   risk_factor: number;
   similar_players: {
-  name: string;
-  player_id: number;
+    name: string;
+    player_id: number;
   }[];
   last5_games: Last5Game[];
   last5_plus_minus_avg: number;
@@ -31,8 +31,10 @@ export interface PlayerReport {
   player_id: number;
 }
 
-export const fetchPlayerReport = async (player: string): Promise<PlayerReport> => {
-  const res = await api.get("/predict/player", {
+export const fetchPlayerReport = async (
+  player: string
+): Promise<PlayerReport> => {
+  const res = await api.get<PlayerReport>("/predict/player", {
     params: { player },
   });
   return res.data;
