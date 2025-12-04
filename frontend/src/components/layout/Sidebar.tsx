@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Home, BarChart3, Settings, Sword } from "lucide-react";
+import { Home, BarChart3, Info, Sword } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { View } from "@/App";
 
@@ -35,8 +35,8 @@ export default function Sidebar({ currentView, onNavigate }: SidebarProps) {
         />
 
         <SidebarLink
-          label="Settings"
-          icon={<Settings className="w-4 h-4" />}
+          label="About"
+          icon={<Info className="w-4 h-4" />}
           active={currentView === "settings"}
           onClick={() => onNavigate("settings")}
         />

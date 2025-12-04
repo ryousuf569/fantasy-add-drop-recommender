@@ -12,6 +12,7 @@ import PlayerDashboard from "./components/PlayerDashboard/PlayerDashboard";
 import ErrorState from "./pages/ErrorState";
 import DesignSystem from "./pages/DesignSystem";
 import Versus from "./pages/Versus";
+import About from "./pages/About"
 import { comparePlayers } from "@/utils/comparison";
 
 export type View = 
@@ -201,12 +202,7 @@ export default function App() {
         />
       )}
 
-      {currentView === "settings" && (
-        <div className="text-foreground space-y-2">
-          <h1 className="text-2xl font-bold">Settings</h1>
-          <p className="text-muted-foreground">Settings page goes here.</p>
-        </div>
-      )}
+      {currentView === "settings" && <About />}
     </AppLayout>
   );
 }

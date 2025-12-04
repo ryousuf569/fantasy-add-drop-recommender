@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.ML_models.finalcomparison import get_full_player_report
-
+from app.ML_models.top5 import *
 from nba_api.stats.endpoints import leaguedashplayerstats
 import app.cache as cache
 
@@ -18,10 +18,9 @@ async def lifespan(app: FastAPI):
         stats = leaguedashplayerstats.LeagueDashPlayerStats(
             season="2025-26"
         ).get_data_frames()[0]
-
         cache.LEAGUE_STATS = stats
         print("LeagueDashPlayerStats successfully loaded.")
-        print(get_full_player_report("Lebron James"))
+        load_or_refresh_top5()
 
     except Exception as e:
         print("Failed to load LeagueDashPlayerStats:", e)
@@ -41,9 +40,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from app.routers import players, predict
+from app.routers import players, predict, top5router
 app.include_router(players.router)
 app.include_router(predict.router)
+app.include_router(top5router.router)
 
 @app.get("/")
 def root():
