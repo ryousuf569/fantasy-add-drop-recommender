@@ -1,14 +1,33 @@
+import os
+import pandas as pd
 from nba_api.stats.endpoints import leaguedashplayerstats
-from nba_api.stats.static.players import get_players
+from app.safe_nba import safe_nba_call
 
-_cached_players = None
+CACHE_FILE = "top_players_cache.csv"
+
 
 def return_all_players():
-    global _cached_players
+    if os.path.exists(CACHE_FILE):
+        try:
+            df = pd.read_csv(CACHE_FILE)
+            if len(df) > 0:
+                return df["PLAYER_NAME"].tolist()
+        except Exception as e:
+            print("[CACHE ERROR] Failed to read cache:", e)
 
-    if _cached_players is None:
-        season_stats = leaguedashplayerstats.LeagueDashPlayerStats(season='2025-26').get_data_frames()[0]
-        top100_df = season_stats[season_stats["NBA_FANTASY_PTS_RANK"] < 201]
-        top_100_players_names = top100_df["PLAYER_NAME"].tolist()
+    print("[CACHE MISS] Fetching player list from NBA API...")
 
-    return top_100_players_names
+    df = safe_nba_call(
+        lambda: leaguedashplayerstats.LeagueDashPlayerStats(
+            season="2025-26"
+        ).get_data_frames()[0],
+        context="LeagueDashPlayerStats(season='2025-26')"
+    )
+    
+    try:
+        df.to_csv(CACHE_FILE, index=False)
+        print("[CACHE SAVED] top_players_cache.csv")
+    except Exception as e:
+        print("[CACHE SAVE ERROR]:", e)
+
+    return df["PLAYER_NAME"].tolist()

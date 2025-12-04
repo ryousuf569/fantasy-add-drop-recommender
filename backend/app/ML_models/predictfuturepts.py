@@ -1,26 +1,30 @@
 from nba_api.stats.endpoints import playergamelogs
 import pandas as pd
 import time
+import os
 from app.ML_models.guardxgbmodel import *
 from app.ML_models.forwardsxgbmodel import *
 from app.ML_models.centerxgbmodels import *
+import app.cache as cache
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, project_root)
+
+CACHE_DIR = "backend/app/data/playerlogs"
+os.makedirs(CACHE_DIR, exist_ok=True)
+
+CACHE_TTL = 60 * 60 * 24
 
 from data_raw.positionbaseddatasetnames import get_position_names
 guard_names, forward_names, center_names = get_position_names()
 
 def get_player_name_id_pos(player_name):
-    from nba_api.stats.endpoints import leaguedashplayerstats
     from nba_api.stats.endpoints import commonplayerinfo
     from difflib import get_close_matches
-    season_stats = leaguedashplayerstats.LeagueDashPlayerStats(season='2025-26')
-    season_df = season_stats.get_data_frames()[0]
+    season_stats = cache.LEAGUE_STATS
+    season_df = season_stats
 
     all_names = [name.lower() for name in (guard_names + forward_names + center_names)]
-
-    time.sleep(0.300)
 
     def player_id_pos(season_df, name):
         pdf = season_df[season_df['PLAYER_NAME'].str.lower() == name.lower()]
@@ -63,14 +67,23 @@ def get_player_name_id_pos(player_name):
     raise ValueError(f"No close match found for player name: {player_name}")
 
 def get_recent_games(player_id, season="2025-26", n=12):
+    cache_path = f"{CACHE_DIR}/{player_id}.csv"
+    now = time.time()
+
+    if os.path.exists(cache_path):
+        modified = os.path.getmtime(cache_path)
+        if now - modified < CACHE_TTL:
+            try:
+                return pd.read_csv(cache_path)
+            except Exception:
+                pass
 
     logs = playergamelogs.PlayerGameLogs(
         player_id_nullable=str(player_id),
         season_nullable=season
     ).get_data_frames()[0]
 
-    time.sleep(0.200)
-
+    logs.to_csv(cache_path, index=False)
     logs['GAME_DATE'] = pd.to_datetime(logs['GAME_DATE'])
     logs = logs.sort_values("GAME_DATE", ascending=False).head(n)
     logs = logs.sort_values("GAME_DATE")

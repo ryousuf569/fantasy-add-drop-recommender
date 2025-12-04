@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { fetchPlayerReport, PlayerReport } from "@/api/players";
+import { PlayerReport } from "@/api/players";
 
 import PlayerHeadshot from "./PlayerHeadshot";
 import RecentGames from "./RecentGames";
@@ -11,37 +10,29 @@ import TrendChart from "./TrendChart";
 import MiniHeadshot from "./MiniHeadshot";
 
 interface PlayerDashboardProps {
-  playerName: string;
+  data: PlayerReport;
+  loading: boolean;
+  error: string | null;
   onBack: () => void;
-  onPlayerSelect: (name: string) => void; 
+  onPlayerSelect: (name: string) => void;
 }
 
-export default function PlayerDashboard({ playerName, onBack, onPlayerSelect }: PlayerDashboardProps) {
-  const [data, setData] = useState<PlayerReport | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-
-    fetchPlayerReport(playerName)
-      .then((res) => {
-        setData(res);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("[PlayerDashboard ERROR]", err);
-        setError("Failed to load player data.");
-        setLoading(false);
-      });
-  }, [playerName]);
-
+export default function PlayerDashboard({
+  data,
+  loading,
+  error,
+  onBack,
+  onPlayerSelect,
+}: PlayerDashboardProps) {
   if (loading) {
     return (
       <div className="space-y-4">
-        <p className="text-muted-foreground animate-pulse">Loading player stats...</p>
-        <Button variant="outline" onClick={onBack}>Back</Button>
+        <p className="text-muted-foreground animate-pulse">
+          Loading player stats...
+        </p>
+        <Button variant="outline" onClick={onBack}>
+          Back
+        </Button>
       </div>
     );
   }
@@ -49,23 +40,22 @@ export default function PlayerDashboard({ playerName, onBack, onPlayerSelect }: 
   if (error || !data) {
     return (
       <div className="space-y-4">
-        <p className="text-red-500">{error}</p>
-        <Button variant="outline" onClick={onBack}>Back</Button>
+        <p className="text-red-500">{error ?? "No data."}</p>
+        <Button variant="outline" onClick={onBack}>
+          Back
+        </Button>
       </div>
     );
   }
 
-  // ------------------------------------------
-  // Final Render
-  // ------------------------------------------
-
   return (
     <div className="space-y-10">
-
       {/* Player Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">{data.player_name}</h1>
-        <Button variant="outline" onClick={onBack}>Back</Button>
+        <Button variant="outline" onClick={onBack}>
+          Back
+        </Button>
       </div>
 
       {/* Top Row: Headshot + Quick Stats */}
@@ -75,8 +65,12 @@ export default function PlayerDashboard({ playerName, onBack, onPlayerSelect }: 
         <div className="grid grid-cols-3 gap-3">
           <Badge variant="secondary">Position: {data.position}</Badge>
           <Badge variant="secondary">Status: {data.status}</Badge>
-          <Badge variant="secondary">Avg Projection: {data.projection_avg}</Badge>
-          <Badge variant="secondary">Last 5 +/-: {data.last5_plus_minus_avg}</Badge>
+          <Badge variant="secondary">
+            Avg Projection: {data.projection_avg}
+          </Badge>
+          <Badge variant="secondary">
+            Last 5 +/-: {data.last5_plus_minus_avg}
+          </Badge>
           <Badge variant="secondary">Risk Score: {data.risk_factor}</Badge>
         </div>
       </div>
@@ -86,13 +80,12 @@ export default function PlayerDashboard({ playerName, onBack, onPlayerSelect }: 
         <CardHeader>
           <CardTitle>Projected Fantasy Points</CardTitle>
         </CardHeader>
-
         <CardContent>
           {data.projection_list.length > 0 ? (
-          <ProjectionChart data={data.projection_list} />
-        ) : (
-          <p className="text-muted-foreground">No projection data.</p>
-        )}
+            <ProjectionChart data={data.projection_list} />
+          ) : (
+            <p className="text-muted-foreground">No projection data.</p>
+          )}
         </CardContent>
       </Card>
 
@@ -101,13 +94,12 @@ export default function PlayerDashboard({ playerName, onBack, onPlayerSelect }: 
         <CardHeader>
           <CardTitle>Trend Meter (Last 5 Games +/-)</CardTitle>
         </CardHeader>
-
         <CardContent>
           {data.last5_games.length > 0 ? (
-          <TrendChart games={data.last5_games} />
-        ) : (
-          <p className="text-muted-foreground">No recent trend data.</p>
-        )}
+            <TrendChart games={data.last5_games} />
+          ) : (
+            <p className="text-muted-foreground">No recent trend data.</p>
+          )}
         </CardContent>
       </Card>
 
@@ -116,7 +108,6 @@ export default function PlayerDashboard({ playerName, onBack, onPlayerSelect }: 
         <CardHeader>
           <CardTitle>Similar Players</CardTitle>
         </CardHeader>
-
         <CardContent>
           <div className="flex flex-wrap gap-3">
             {data.similar_players.map((p) => (
@@ -127,7 +118,7 @@ export default function PlayerDashboard({ playerName, onBack, onPlayerSelect }: 
                 onSelect={() => onPlayerSelect(p.name)}
               />
             ))}
-        </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -140,7 +131,6 @@ export default function PlayerDashboard({ playerName, onBack, onPlayerSelect }: 
           <RecentGames games={data.last5_games} />
         </CardContent>
       </Card>
-
     </div>
   );
 }

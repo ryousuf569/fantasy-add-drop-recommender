@@ -99,20 +99,19 @@ def calculate_risk_factor(fproj):
 def compute_trend_meter(avg5, avg12, playername):
     trend_raw = (avg5 - avg12) / avg12
 
-    if trend_raw > 0.20: return f"{playername} is going crazy lately."
-    elif trend_raw > 0.10: return f"{playername} is turning up."
-    elif trend_raw > 0.03: return f"{playername} is playing better recently."
-    elif trend_raw > -0.03: return f"{playername} is performing consistent"
-    elif trend_raw > -0.10: return f"{playername} been slowing down."
-    elif trend_raw > -0.20: return f"{playername} is getting worse and worse"
-    else: return f"{playername} yea he's not in form bro..."
+    if trend_raw > 0.20: return "H"
+    elif trend_raw > 0.10: return "H"
+    elif trend_raw > 0.03: return "H"
+    elif trend_raw > -0.03: return "N"
+    elif trend_raw > -0.10: return "C"
+    elif trend_raw > -0.20: return "C"
+    else: return "C"
 
 def get_full_player_report(player_name):
 
     desiredplayer_name = player_id_to_name(get_player_id_from_name(player_name))
 
     desired_proj, desired_last_12_bpm_avg, dplayer_pos = get_fantasay_pred(desiredplayer_name)
-    time.sleep(0.300)
     desiredplayer_id = get_player_id_from_name(desiredplayer_name)
     desiredplayer_status = get_recent_games_with_status(desiredplayer_name)
 
@@ -139,4 +138,3 @@ def get_full_player_report(player_name):
         "position": str(dplayer_pos),
         "player_id": int(desiredplayer_id),
     } 
-

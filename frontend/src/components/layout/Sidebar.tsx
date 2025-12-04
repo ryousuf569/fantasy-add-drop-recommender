@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Home, BarChart3, Settings } from "lucide-react";
+import { Home, BarChart3, Settings, Sword } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { View } from "@/App";
 
@@ -13,26 +13,33 @@ export default function Sidebar({ currentView, onNavigate }: SidebarProps) {
     <div className="w-60 bg-card h-full p-4 border-r border-border">
       <nav className="flex flex-col gap-2">
 
-        <button
-          className={currentView === "home" ? "text-primary font-bold" : ""}
+        <SidebarLink
+          label="Home"
+          icon={<Home className="w-4 h-4" />}
+          active={currentView === "home"}
           onClick={() => onNavigate("home")}
-        >
-          Home
-        </button>
+        />
 
-        <button
-          className={currentView === "player" ? "text-primary font-bold" : ""}
+        <SidebarLink
+          label="Player Dashboard"
+          icon={<BarChart3 className="w-4 h-4" />}
+          active={currentView === "player"}
           onClick={() => onNavigate("player")}
-        >
-          Player Dashboard
-        </button>
+        />
 
-        <button
-          className={currentView === "settings" ? "text-primary font-bold" : ""}
+        <SidebarLink
+          label="Versus Mode"
+          icon={<Sword className="w-4 h-4" />}
+          active={currentView === "versus"}
+          onClick={() => onNavigate("versus")}
+        />
+
+        <SidebarLink
+          label="Settings"
+          icon={<Settings className="w-4 h-4" />}
+          active={currentView === "settings"}
           onClick={() => onNavigate("settings")}
-        >
-          Settings
-        </button>
+        />
 
       </nav>
     </div>
