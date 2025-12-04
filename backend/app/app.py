@@ -48,3 +48,7 @@ app.include_router(top5router.router)
 @app.get("/")
 def root():
     return {"message": "Fantasy NBA API running"}
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
