@@ -22,7 +22,8 @@ const HomePage = ({ onPlayerSelect }: PlayerPageProps) => {
           </h1>
           <p className="text-neutral-400 max-w-xl mx-auto">
             Search any NBA player to see trends, projections, risk scores, and matchup insights.  
-            Built for faster add/drop decisions — powered by ML + live stats.
+            Built for faster add/drop decisions — powered by ML + live stats. 
+            Note that this is very early production, some bugs may occur. 
           </p>
         </div>
 

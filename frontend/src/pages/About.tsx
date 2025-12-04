@@ -8,9 +8,14 @@ export default function About() {
       <div className="text-center space-y-3">
         <h1 className="text-3xl font-bold">About This Project</h1>
         <p className="text-muted-foreground max-w-xl mx-auto">
-          Fantasy NBA Insights is a full-stack analytics tool built with FastAPI, React,
-          TypeScript, and machine learning. Designed to help fantasy basketball players
-          make better add/drop, trade, and matchup decisions.
+          I started my fantasy season 0–4, getting FRIED every week. So I wrote a few Python scripts that pulled NBA API stats and used XGBoost + KNN models, 
+          along with some formulas based on how fantasy scores are calculated (they’re in the research folder in GitHub repo), 
+          to recommend better players. It took 15 days to gather data 😰, and 5 days just to train the model 🪦, I eventually got within 10 points of accuracy on my test data.
+          After that, I won my next two matchups with the highest score in the league.
+          I showed it my friends Jake and Ishaan and they said they would actually use it so I made this for people who got unlucky
+          with the draft order. I've never built a UI before so I watched some React-TypeScript videos and used Figma
+          to design the UI/UX, and I used FastAPI for the backend. HUGE thanks to Swar for making the NBA API, enjoy and shut up
+          if you find any bugs in my app. (Email me about it ryousuf569@gmail.com)
         </p>
       </div>
 
@@ -54,24 +59,6 @@ export default function About() {
             <FileText size={18} />
             <span>View README.md</span>
           </a>
-        </div>
-      </div>
-
-      {/* README Preview */}
-      <div className="space-y-3">
-        <h2 className="text-xl font-semibold">Project README (Preview)</h2>
-
-        <div className="p-4 rounded-md bg-neutral-900 border border-neutral-700 text-sm leading-relaxed text-neutral-300">
-          <p className="font-semibold">Fantasy NBA Player Insights</p>
-          <p>
-            A full-stack fantasy basketball analytics platform leveraging machine learning, 
-            real-time NBA statistics, and predictive modeling to help users make optimized 
-            roster decisions.
-          </p>
-
-          <p className="mt-3 italic text-neutral-500">
-            Click “View README.md” above to read the full documentation.
-          </p>
         </div>
       </div>
     </div>
