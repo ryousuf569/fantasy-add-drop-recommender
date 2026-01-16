@@ -1,4 +1,4 @@
-# 🏀 Fantasy NBA Player Insights — ML-Powered Add/Drop Assistant
+# Fantasy NBA Player Insights
 
 Welcome to my Fantasy NBA analytics project. This started because I kept losing to my friends in fantasy basketball… and eventually I got tired of losing. So I built something smarter.
 
@@ -81,3 +81,4 @@ This app is still evolving.
 It started as “I’m tired of losing matchups,” and it’s turning into a full analytical toolkit.
 
 More documentation coming soon.
+
